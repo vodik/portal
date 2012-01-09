@@ -17,6 +17,9 @@ import Text.Pandoc (HTMLMathMethod(..), WriterOptions(..), defaultWriterOptions)
 import Text.Pandoc.Shared (ObfuscationMethod(..))
 import Hakyll
 
+data Portal = Portal String
+            | Archive String String
+
 -- | Set up deply command
 --
 hakyllConf = defaultHakyllConfiguration
@@ -33,8 +36,8 @@ byPath = reverse . sortBy (comparing $ getField "path")
 -- | Filter out unuseful contents
 --
 getUsefulContents :: FilePath -> IO [String]
-getUsefulContents path =
-    filter (`notElem` [".", "..", "archive"]) `fmap` getDirectoryContents path
+getUsefulContents path = filter (`notElem` [".", "..", "archive"])
+    `fmap` getDirectoryContents path
 
 -- | Get a list of subdirectories
 --
