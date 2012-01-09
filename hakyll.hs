@@ -30,13 +30,13 @@ hakyllConf = defaultHakyllConfiguration
 
 getSubDirectories :: FilePath -> IO [FilePath]
 getSubDirectories dir = getDirectoryContents dir >>=
-    filterM (doesDirectoryExist . (dir </>))
+    filterM (doesDirectoryExist . (</>) dir)
 
 findArchives :: FilePath -> ListT IO Portal
 findArchives path = do
     sec <- ListT $ getSubDirectories path
     guardDotFile sec
-    dir <- ListT $ getSubDirectories (path </> sec)
+    dir <- ListT $ getSubDirectories $ path </> sec
     guardDotFile dir
     return $ Archive sec dir
 
@@ -45,7 +45,7 @@ findPortals path = do
     dir <- ListT $ getSubDirectories path
     guardDotFile dir
     if dir == "archive"
-       then findArchives (path </> dir)
+       then findArchives $ path </> dir
        else return $ Portal dir
 
 -- | Guard against anything prefixed with a dot. Filters out previous
@@ -112,8 +112,20 @@ makeClassPortal (Portal d) = match index $ do
         >>> applyTemplateCompiler "templates/default.html"
         >>> relativizeUrlsCompiler
     where
-        notes = parseGlob $ "notes/" ++ d ++ "/notes/*/*"
-        index = parseGlob $ "notes/" ++ d ++ "/index.md"
+        notes = parseGlob $ "notes" </> d </> "notes/*/*"
+        index = parseGlob $ "notes" </> d </> "index.md"
+
+makeClassPortal (Archive s d) = match index $ do
+    route   $ dropPath 1 `composeRoutes` setExtension ".html"
+    compile $ pageCompiler
+        >>> setFieldPageList byPath "templates/noteitem.html" "notes" notes
+        >>> arr (changeField "url" dropFileName)
+        >>> applyTemplateCompiler "templates/portal.html"
+        >>> applyTemplateCompiler "templates/default.html"
+        >>> relativizeUrlsCompiler
+    where
+        notes = parseGlob $ "notes" </> s </> d </> "notes/*/*"
+        index = parseGlob $ "notes" </> s </> d </> "index.md"
 
 -- | Override the default compiler because we want to use MathJax
 --
