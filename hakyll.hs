@@ -52,7 +52,7 @@ findPortals path = do
 -- and current directory plus lets us hide folders.
 --
 guardDotFile :: (MonadPlus m) => FilePath -> m ()
-guardDotFile = guard . not . ("." `isPrefixOf`)
+guardDotFile = guard . not . isPrefixOf "."
 
 main :: IO ()
 main = runListT (findPortals "notes") >>= doHakyll
