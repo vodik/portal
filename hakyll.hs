@@ -61,13 +61,15 @@ main = runListT (findPortals "notes") >>= doHakyll
 --
 doHakyll :: [Portal] -> IO ()
 doHakyll dirs = hakyllWith hakyllConf $ do
-    -- Read templates
-    match "templates/*" $ compile templateCompiler
-
+    -- Images and static files
+    [ "favicon.ico" ] --> copy
+    [ "images/**" ]   --> copy
+    [ "static/**" ]   --> copy
+    [ "js/**" ]       --> copy
     -- Compress CSS
-    match "css/*" $ do
-        route   idRoute
-        compile compressCssCompiler
+    [ "css/*" ]       --> css
+    -- Read templates
+    [ "templates/*" ] --> templates
 
     -- Compile all my class notes
     match "notes/*/notes/*/*" $ do
@@ -88,6 +90,14 @@ doHakyll dirs = hakyllWith hakyllConf $ do
         >>> applyTemplateCompiler "templates/index.html"
         >>> applyTemplateCompiler "templates/default.html"
         >>> relativizeUrlsCompiler
+
+    where
+        -- Useful combinator here
+        xs --> f = mapM_ (\p -> match p $ f) xs
+
+        copy = route idRoute >> compile copyFileCompiler
+        css  = route idRoute >> compile compressCssCompiler
+        templates = compile templateCompiler
 
 -- | Sort pages chronologically based on their path. This assumes a
 -- @year/month/day[.extension]@ like naming scheme.
