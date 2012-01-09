@@ -83,7 +83,7 @@ doHakyll dirs = hakyllWith hakyllConf $ do
     forM_ dirs makeClassPortal
 
     -- Build index
-    match "index.html"  $ route idRoute
+    match  "index.html" $ route idRoute
     create "index.html" $ constA mempty
         >>> arr (setField "title" "Home")
         >>> setFieldPageList chronological "templates/class.html" "classes" "notes/*/*"
@@ -92,7 +92,6 @@ doHakyll dirs = hakyllWith hakyllConf $ do
         >>> relativizeUrlsCompiler
 
     where
-        -- Useful combinator here
         xs --> f = mapM_ (\p -> match p $ f) xs
 
         copy = route idRoute >> compile copyFileCompiler
