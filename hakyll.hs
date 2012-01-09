@@ -103,19 +103,17 @@ dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 -- | Compile a portal page for the class
 --
 makeClassPortal :: Portal -> RulesM (Pattern (Page String))
-makeClassPortal (Portal d) = match index $ do
-    route   $ dropPath 1 `composeRoutes` setExtension ".html"
-    compile $ pageCompiler
-        >>> setFieldPageList byPath "templates/noteitem.html" "notes" notes
-        >>> arr (changeField "url" dropFileName)
-        >>> applyTemplateCompiler "templates/portal.html"
-        >>> applyTemplateCompiler "templates/default.html"
-        >>> relativizeUrlsCompiler
-    where
-        notes = parseGlob $ "notes" </> d </> "notes/*/*"
+makeClassPortal (Portal d) =
+    let notes = parseGlob $ "notes" </> d </> "notes/*/*"
         index = parseGlob $ "notes" </> d </> "index.md"
+    in makeClassPortal' notes index
+makeClassPortal (Archive s d) =
+    let notes = parseGlob $ "notes/archive" </> s </> d </> "notes/*/*"
+        index = parseGlob $ "notes/archive" </> s </> d </> "index.md"
+    in makeClassPortal' notes index
 
-makeClassPortal (Archive s d) = match index $ do
+makeClassPortal' :: Pattern (Page String) -> Pattern (Page String) -> RulesM (Pattern (Page String))
+makeClassPortal' index notes = match index $ do
     route   $ dropPath 1 `composeRoutes` setExtension ".html"
     compile $ pageCompiler
         >>> setFieldPageList byPath "templates/noteitem.html" "notes" notes
@@ -123,9 +121,6 @@ makeClassPortal (Archive s d) = match index $ do
         >>> applyTemplateCompiler "templates/portal.html"
         >>> applyTemplateCompiler "templates/default.html"
         >>> relativizeUrlsCompiler
-    where
-        notes = parseGlob $ "notes" </> s </> d </> "notes/*/*"
-        index = parseGlob $ "notes" </> s </> d </> "index.md"
 
 -- | Override the default compiler because we want to use MathJax
 --
