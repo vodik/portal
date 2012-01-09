@@ -1,0 +1,150 @@
+@import url("normalize.css");
+
+body {
+	color: #000305;
+	font-size: 90%;
+	margin: 0;
+	/* padding-left:320px; */
+	padding-left: 100px;
+	padding-right: 100px;
+	text-align: left;
+}
+
+h1    { font-size:1.8em; }
+h2    { font-size:1.6em; }
+h3,h4 { font-size:1.3em; }
+h5    { font-size:1.1em; }
+h6    { font-size:1em; }
+
+h1,h2,h3,h4,h5,h6 {
+	font-weight:400;
+	line-height:1.1;
+	padding-bottom:0.4em;
+}
+
+#header {
+	margin-bottom:2em;
+	padding:40px 0 5px;
+}
+
+#header h1 {
+	font-size:3em;
+	margin:0;
+	padding:0;
+}
+
+#footer { font-size:0.8em; }
+
+/* #TOC { */
+/* 	background:#efefef; */
+/* 	bottom:0; */
+/* 	left:0; */
+/* 	overflow:auto; */
+/* 	position:fixed; */
+/* 	text-align:right; */
+/* 	top:0; */
+/* 	width:260px; */
+/* } */
+
+/* #TOC ul { padding-left:0; } */
+/* #TOC > ul { padding-top:30px; } */
+
+/* #TOC li { */
+/* 	display:block; */
+/* 	list-style:none; */
+/* 	overflow:hidden; */
+/* } */
+
+/* #TOC a { */
+/* 	background:#fff; */
+/* 	border:none; */
+/* 	font-size:1.1em; */
+/* } */
+
+/* #TOC li li a { */
+/* 	color:#aaa; */
+/* 	font-size:0.8em; */
+/* } */
+
+/* #TOC li li li a { */
+/* 	color:#ccc; */
+/* 	font-size:0.6em; */
+/* } */
+
+p {
+	line-height:1.5em;
+	margin-bottom:1.5em;
+}
+
+/* a { color:#222; } */
+a { color: #bf1e2d; }
+a:after { content: "→" }
+
+a:link,a:visited {
+	/* border-bottom:solid 1px #999; */
+	/* color:#222; */
+	color: #bf1e2d;
+	padding: 0 0 1px;
+	text-decoration: none;
+}
+
+blockquote {
+	color:#666;
+	font-style:italic;
+	margin:2em;
+}
+
+em,dfn { font-style:italic; }
+sup,sub { line-height:0; }
+abbr,acronym { border-bottom:1px dotted #666; }
+
+address {
+	font-style:italic;
+	margin:0 0 1.5em;
+}
+
+pre,code {
+	margin:1.5em 0;
+	white-space:pre;
+}
+
+pre {
+	background:#f2f2f2;
+	border:dashed 1px #ccc;
+	padding:1.2em;
+}
+
+tt {
+	display:block;
+	line-height:1.5;
+	margin:1.5em 0;
+}
+
+pre,code,tt {
+	color:#000805;
+	font-family:'Droid Sans Mono', monospace;
+	font-size:0.9em;
+}
+
+ul li,ol li {
+	margin-bottom:3px;
+	margin-top:3px;
+}
+
+ol { list-style-type:decimal; }
+dl { margin:0 0 1.5em; }
+dd { margin-left:1.5em; }
+
+#header h3,#header h4 {
+	color:#555;
+	margin:0;
+	padding:0;
+}
+
+#footer,#footer a,del {
+	color:#666;
+}
+
+strong,dfn,dl dt {
+	font-weight:700;
+}

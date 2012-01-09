@@ -1,0 +1,8 @@
+*.hi
+*.o
+*.swp
+hakyll
+notes
+_site
+_cache
+*.md
