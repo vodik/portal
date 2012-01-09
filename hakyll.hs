@@ -49,17 +49,6 @@ findPortals path = do
 --
 guardDotFile :: (MonadPlus m) => FilePath -> m ()
 guardDotFile = guard . not . ("." `isPrefixOf`)
---
--- | Sort pages chronologically based on their path. This assumes a
--- @year/month/day[.extension]@ like naming scheme.
---
-byPath :: [Page String] -> [Page String]
-byPath = reverse . sortBy (comparing $ getField "path")
-
--- | Drop n sections from a route
---
-dropPath :: Int -> Routes
-dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 
 main :: IO ()
 main = runListT (findPortals "notes") >>= doHakyll
@@ -95,6 +84,17 @@ doHakyll dirs = hakyllWith hakyllConf $ do
         >>> applyTemplateCompiler "templates/index.html"
         >>> applyTemplateCompiler "templates/default.html"
         >>> relativizeUrlsCompiler
+
+-- | Sort pages chronologically based on their path. This assumes a
+-- @year/month/day[.extension]@ like naming scheme.
+--
+byPath :: [Page String] -> [Page String]
+byPath = reverse . sortBy (comparing $ getField "path")
+
+-- | Drop n sections from a route
+--
+dropPath :: Int -> Routes
+dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 
 -- | Compile a portal page for the class
 --
