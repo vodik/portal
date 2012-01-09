@@ -48,7 +48,7 @@ getDirectories dir = getUsefulContents dir >>=
 -- | Drop n sections from a route
 --
 dropPath :: Int -> Routes
-dropPath n  = customRoute $ joinPath . drop n . splitPath . toFilePath
+dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 
 main :: IO ()
 main = getDirectories "notes" >>= doHakyll
