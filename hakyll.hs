@@ -28,20 +28,24 @@ hakyllConf = defaultHakyllConfiguration
                        \_site/* simongmzlj@vodik.local:/srv/http/notes"
     }
 
-getArchives :: FilePath -> ListT IO Portal
-getArchives path = do
-    sec <- ListT $ filterM (doesDirectoryExist . (</>) path) =<< getDirectoryContents path
+getSubDirectories :: FilePath -> IO [FilePath]
+getSubDirectories dir = getDirectoryContents dir >>=
+    filterM (doesDirectoryExist . (dir </>))
+
+findArchives :: FilePath -> ListT IO Portal
+findArchives path = do
+    sec <- ListT $ getSubDirectories path
     guardDotFile sec
-    dir <- ListT $ filterM (doesDirectoryExist . (</>) (path </> sec)) =<< getDirectoryContents (path </> sec)
+    dir <- ListT $ getSubDirectories (path </> sec)
     guardDotFile dir
     return $ Archive sec dir
 
 findPortals :: FilePath -> ListT IO Portal
 findPortals path = do
-    dir <- ListT $ filterM (doesDirectoryExist . (</>) path) =<< getDirectoryContents path
+    dir <- ListT $ getSubDirectories path
     guardDotFile dir
     if dir == "archive"
-       then getArchives (path </> dir)
+       then findArchives (path </> dir)
        else return $ Portal dir
 
 -- | Guard against anything prefixed with a dot. Filters out previous
