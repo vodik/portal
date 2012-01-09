@@ -7,7 +7,8 @@ import Prelude hiding (id)
 import Control.Arrow
 import Control.Category (id)
 import Control.Monad
-import Data.List (sortBy)
+import Control.Monad.List
+import Data.List (isPrefixOf, sortBy)
 import Data.Monoid
 import Data.Ord (comparing)
 import System.Directory (doesDirectoryExist, getDirectoryContents)
@@ -27,23 +28,33 @@ hakyllConf = defaultHakyllConfiguration
                        \_site/* simongmzlj@vodik.local:/srv/http/notes"
     }
 
+getArchives :: FilePath -> ListT IO Portal
+getArchives path = do
+    sec <- ListT $ filterM (doesDirectoryExist . (</>) path) =<< getDirectoryContents path
+    guardDotFile sec
+    dir <- ListT $ filterM (doesDirectoryExist . (</>) (path </> sec)) =<< getDirectoryContents (path </> sec)
+    guardDotFile dir
+    return $ Archive sec dir
+
+findPortals :: FilePath -> ListT IO Portal
+findPortals path = do
+    dir <- ListT $ filterM (doesDirectoryExist . (</>) path) =<< getDirectoryContents path
+    guardDotFile dir
+    if dir == "archive"
+       then getArchives (path </> dir)
+       else return $ Portal dir
+
+-- | Guard against anything prefixed with a dot. Filters out previous
+-- and current directory plus lets us hide folders.
+--
+guardDotFile :: (MonadPlus m) => FilePath -> m ()
+guardDotFile = guard . not . ("." `isPrefixOf`)
+--
 -- | Sort pages chronologically based on their path. This assumes a
 -- @year/month/day[.extension]@ like naming scheme.
 --
 byPath :: [Page String] -> [Page String]
 byPath = reverse . sortBy (comparing $ getField "path")
-
--- | Filter out unuseful contents
---
-getUsefulContents :: FilePath -> IO [String]
-getUsefulContents path = filter (`notElem` [".", "..", "archive"])
-    `fmap` getDirectoryContents path
-
--- | Get a list of subdirectories
---
-getDirectories :: FilePath -> IO [String]
-getDirectories dir = getUsefulContents dir >>=
-    filterM (doesDirectoryExist . (</>) dir)
 
 -- | Drop n sections from a route
 --
@@ -51,11 +62,11 @@ dropPath :: Int -> Routes
 dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 
 main :: IO ()
-main = getDirectories "notes" >>= doHakyll
+main = runListT (findPortals "notes") >>= doHakyll
 
 -- | Where the magic happens
 --
-doHakyll :: [FilePath] -> IO ()
+doHakyll :: [Portal] -> IO ()
 doHakyll dirs = hakyllWith hakyllConf $ do
     -- Read templates
     match "templates/*" $ compile templateCompiler
@@ -87,8 +98,8 @@ doHakyll dirs = hakyllWith hakyllConf $ do
 
 -- | Compile a portal page for the class
 --
-makeClassPortal :: FilePath -> RulesM (Pattern (Page String))
-makeClassPortal d = match index $ do
+makeClassPortal :: Portal -> RulesM (Pattern (Page String))
+makeClassPortal (Portal d) = match index $ do
     route   $ dropPath 1 `composeRoutes` setExtension ".html"
     compile $ pageCompiler
         >>> setFieldPageList byPath "templates/noteitem.html" "notes" notes
