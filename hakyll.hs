@@ -65,7 +65,6 @@ doHakyll dirs = hakyllWith hakyllConf $ do
 
     -- Compile all my class notes
     match "notes/*/notes/*/*" $ do
-        -- route   $ setExtension ".html"
         route   $ dropPath 1 `composeRoutes` setExtension ".html"
         compile $ notesCompiler
             >>> applyTemplateCompiler "templates/note.html"
@@ -102,8 +101,7 @@ makeClassPortal d = match index $ do
 -- | Override the default compiler because we want to use MathJax
 --
 notesCompiler :: Compiler Resource (Page String)
-notesCompiler = pageCompilerWith defaultHakyllParserState
-    notesWriterOptions
+notesCompiler = pageCompilerWith defaultHakyllParserState notesWriterOptions
 
 -- | WriterOptions with MathJax for math rendering set
 --
