@@ -4,12 +4,12 @@ module Main where
 
 import Prelude hiding (id)
 
+import Control.Arrow
 import Control.Category (id)
-import Control.Monad (forM_, filterM)
-import Control.Arrow ((>>>), (***), arr)
+import Control.Monad
 import Data.List (sortBy)
+import Data.Monoid
 import Data.Ord (comparing)
-import Data.Monoid (mempty, mconcat)
 import System.Directory (doesDirectoryExist, getDirectoryContents)
 import System.FilePath
 
