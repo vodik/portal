@@ -33,9 +33,8 @@ byPath = reverse . sortBy (comparing $ getField "path")
 -- | Filter out unuseful contents
 --
 getUsefulContents :: FilePath -> IO [String]
-getUsefulContents path = do
-    names <- getDirectoryContents path
-    return $ filter (`notElem` [".", "..", "archive"]) names
+getUsefulContents path =
+    filter (`notElem` [".", "..", "archive"]) `fmap` getDirectoryContents path
 
 -- | Get a list of subdirectories
 --
