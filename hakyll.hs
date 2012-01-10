@@ -28,13 +28,9 @@ hakyllConf = defaultHakyllConfiguration
 
 -- | Get all subdirectories of a directory
 --
-getSubDirectories :: FilePath -> IO [FilePath]
-getSubDirectories dir = getDirectoryContents dir >>=
-    filterM (doesDirectoryExist . (</>) dir)
-
-findFolders :: FilePath -> ListT IO FilePath
-findFolders path = do
-    dir <- ListT $ getSubDirectories path
+getSubDirectories :: FilePath -> ListT IO FilePath
+getSubDirectories path = do
+    dir <- ListT $ getDirectoryContents path >>= filterM (doesDirectoryExist . (</>) path)
     guardDotFile dir
     return $ path </> dir
 
@@ -46,14 +42,14 @@ guardDotFile = guard . not . isPrefixOf "."
 
 main :: IO ()
 main = do
-    c <- runListT $ findFolders "class"
-    a <- runListT $ findFolders "archive"
+    c <- runListT $ getSubDirectories "class"
+    a <- runListT $ getSubDirectories "archive"
     doHakyll c a
 
 -- | Where the magic happens
 --
 doHakyll :: [FilePath] -> [FilePath] -> IO ()
-doHakyll c a = hakyllWith hakyllConf $ do
+doHakyll classes archived = hakyllWith hakyllConf $ do
     -- Images and static files, compress css, process templates
     [ "favicon.ico" ] --> copy
     [ "images/**" ]   --> copy
@@ -71,15 +67,15 @@ doHakyll c a = hakyllWith hakyllConf $ do
             >>> relativizeUrlsCompiler
 
     -- Generate the actuall class portals
-    forM_ c $ makeClassPortal "template/portal.hml"
-    forM_ a $ makeClassPortal "template/archive.hml"
+    forM_ classes  $ makeClassPortal "templates/portal.html"
+    forM_ archived $ makeClassPortal "templates/archive.html"
 
-    -- Build index
+    -- Build main index
     match  "index.html" $ route idRoute
     create "index.html" $ constA mempty
         >>> arr (setField "title" "Home")
-        >>> setFieldPageList chronological "templates/class.html" "classes" "notes/*/*"
-        >>> setFieldPageList chronological "templates/class.html" "archived" "notes/archive/*/*"
+        >>> setFieldPageList chronological "templates/class.html" "classes"  "class/*/*"
+        >>> setFieldPageList chronological "templates/class.html" "archived" "archive/*/*"
         >>> applyTemplateCompiler "templates/index.html"
         >>> applyTemplateCompiler "templates/default.html"
         >>> relativizeUrlsCompiler
@@ -106,7 +102,7 @@ dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 -- | Compile a portal page for the class
 --
 -- makeClassPortal :: FilePath -> RulesM (Pattern (Page String))
-makeClassPortal template d = do
+makeClassPortal template d = match index $ do
     route   $ dropPath 1 `composeRoutes` setExtension ".html"
     compile $ pageCompiler
         >>> setFieldPageList byPath "templates/noteitem.html" "notes" notes
