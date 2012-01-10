@@ -28,6 +28,8 @@ hakyllConf = defaultHakyllConfiguration
                        \_site/* simongmzlj@vodik.local:/srv/http/notes"
     }
 
+-- | Get all subdirectories of a directory
+--
 getSubDirectories :: FilePath -> IO [FilePath]
 getSubDirectories dir = getDirectoryContents dir >>=
     filterM (doesDirectoryExist . (</>) dir)
@@ -66,9 +68,9 @@ doHakyll dirs = hakyllWith hakyllConf $ do
     [ "images/**" ]   --> copy
     [ "static/**" ]   --> copy
     [ "js/**" ]       --> copy
-    -- Compress CSS
+
+    -- Compress css, read templates
     [ "css/*" ]       --> css
-    -- Read templates
     [ "templates/*" ] --> templates
 
     -- Compile all my class notes
