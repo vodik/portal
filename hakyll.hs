@@ -36,7 +36,7 @@ getSubDirectories dir = getDirectoryContents dir >>=
 
 findArchives :: FilePath -> ListT IO Portal
 findArchives path = do
-    dir <- ListT $ getSubDirectories $ path
+    dir <- ListT $ getSubDirectories path
     guardDotFile dir
     return $ Archive dir
 
@@ -70,15 +70,8 @@ doHakyll dirs = hakyllWith hakyllConf $ do
     [ "templates/*" ] --> templates
 
     -- Compile all my class notes
-    match "notes/*/notes/*/*" $ do
-        route   $ dropPath 1 `composeRoutes` setExtension ".html"
-        compile $ notesCompiler
-            >>> applyTemplateCompiler "templates/note.html"
-            >>> applyTemplateCompiler "templates/default.html"
-            >>> relativizeUrlsCompiler
-
-    match "notes/archive/*/notes/*/*" $ do
-        route   $ dropPath 2 `composeRoutes` setExtension ".html"
+    match "notes/**/notes/*/*" $ do
+        route   $ dropWrapper `composeRoutes` setExtension ".html"
         compile $ notesCompiler
             >>> applyTemplateCompiler "templates/note.html"
             >>> applyTemplateCompiler "templates/default.html"
@@ -99,7 +92,7 @@ doHakyll dirs = hakyllWith hakyllConf $ do
 
   where
     -- Useful combinator here
-    xs --> f = mapM_ (\p -> match p $ f) xs
+    xs --> f = mapM_ (`match` f) xs
 
     copy = route idRoute >> compile copyFileCompiler
     css  = route idRoute >> compile compressCssCompiler
@@ -111,10 +104,9 @@ doHakyll dirs = hakyllWith hakyllConf $ do
 byPath :: [Page String] -> [Page String]
 byPath = reverse . sortBy (comparing $ getField "path")
 
--- | Drop n sections from a route
---
-dropPath :: Int -> Routes
-dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
+dropWrapper :: Routes
+dropWrapper = customRoute $ joinPath . dropWhile junk . splitPath . toFilePath
+    where junk x = x `elem` [ "notes/", "archive/" ]
 
 -- | Compile a portal page for the class
 --
@@ -122,15 +114,15 @@ makeClassPortal :: Portal -> RulesM (Pattern (Page String))
 makeClassPortal (Portal d) =
     let index = parseGlob $ "notes" </> d </> "index.md"
         notes = parseGlob $ "notes" </> d </> "notes/*/*"
-    in makeClassPortal' index notes 1 "templates/portal.html"
+    in makeClassPortal' index notes "templates/portal.html"
 makeClassPortal (Archive d) =
     let index = parseGlob $ "notes/archive" </> d </> "index.md"
         notes = parseGlob $ "notes/archive" </> d </> "notes/*/*"
-    in makeClassPortal' index notes 2 "templates/archive.html"
+    in makeClassPortal' index notes "templates/archive.html"
 
-makeClassPortal' :: Pattern (Page String) -> Pattern (Page String) -> Int -> Identifier Template -> RulesM (Pattern (Page String))
-makeClassPortal' index notes l template = match index $ do
-    route   $ dropPath l `composeRoutes` setExtension ".html"
+makeClassPortal' :: Pattern (Page String) -> Pattern (Page String) -> Identifier Template -> RulesM (Pattern (Page String))
+makeClassPortal' index notes template = match index $ do
+    route   $ dropWrapper `composeRoutes` setExtension ".html"
     compile $ pageCompiler
         >>> setFieldPageList byPath "templates/noteitem.html" "notes" notes
         >>> arr (changeField "url" dropFileName)
