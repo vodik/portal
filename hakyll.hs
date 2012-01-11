@@ -30,7 +30,8 @@ hakyllConf = defaultHakyllConfiguration
 --
 getSubDirectories :: FilePath -> ListT IO FilePath
 getSubDirectories path = do
-    dir <- ListT $ getDirectoryContents path >>= filterM (doesDirectoryExist . (</>) path)
+    dir <- ListT $ getDirectoryContents path
+    lift $ (doesDirectoryExist . (</>) path) dir >>= guard
     guardDotFile dir
     return $ path </> dir
 
