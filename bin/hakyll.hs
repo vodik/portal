@@ -69,7 +69,7 @@ doHakyll classes archived = hakyllWith hakyllConf $ do
     match  "index.html" $ route idRoute
     create "index.html" $ constA mempty
         >>> arr (setField "title" "Home")
-        >>> setFieldPageList chronological "templates/class.html" "classes"  "class/*/*"
+        >>> setFieldPageList chronological "templates/class.html" "classes"  "classes/*/*"
         >>> setFieldPageList chronological "templates/class.html" "archived" "archive/*/*"
         >>> applyTemplateCompiler "templates/index.html"
         >>> applyTemplateCompiler "templates/default.html"
