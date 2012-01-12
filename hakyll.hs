@@ -10,9 +10,11 @@ import Control.Category (id)
 import Control.Monad
 import Control.Monad.List
 import Data.List (isPrefixOf, sortBy)
+import Data.Maybe (fromMaybe)
 import Data.Monoid
 import Data.Ord (comparing)
 import System.Directory (doesDirectoryExist, getDirectoryContents)
+import System.Environment (getEnvironment)
 import System.FilePath
 
 import Text.Pandoc (HTMLMathMethod(..), WriterOptions(..), defaultWriterOptions)
@@ -32,19 +34,14 @@ getSubDirectories :: FilePath -> ListT IO FilePath
 getSubDirectories path = do
     dir <- ListT $ getDirectoryContents path
     lift $ (doesDirectoryExist . (</>) path) dir >>= guard
-    guardDotFile dir
+    guard . not $ isPrefixOf "." dir
     return $ path </> dir
-
--- | Guard against anything prefixed with a dot. Filters out previous
--- and current directory plus lets us hide folders.
---
-guardDotFile :: (MonadPlus m) => FilePath -> m ()
-guardDotFile = guard . not . isPrefixOf "."
 
 main :: IO ()
 main = do
-    c <- runListT $ getSubDirectories "class"
-    a <- runListT $ getSubDirectories "archive"
+    path <- fmap (fromMaybe "." . lookup "NOTE_PATH") getEnvironment
+    c <- runListT . getSubDirectories $ path </> "class"
+    a <- runListT . getSubDirectories $ path </> "archive"
     doHakyll c a
 
 -- | Where the magic happens
