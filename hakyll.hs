@@ -3,18 +3,15 @@
 module Main where
 
 import Prelude hiding (id)
-import Debug.Trace
 
 import Control.Arrow
 import Control.Category (id)
 import Control.Monad
 import Control.Monad.List
 import Data.List (isPrefixOf, sortBy)
-import Data.Maybe (fromMaybe)
 import Data.Monoid
 import Data.Ord (comparing)
 import System.Directory (doesDirectoryExist, getDirectoryContents)
-import System.Environment (getEnvironment)
 import System.FilePath
 
 import Text.Pandoc (HTMLMathMethod(..), WriterOptions(..), defaultWriterOptions)
@@ -32,16 +29,16 @@ hakyllConf = defaultHakyllConfiguration
 --
 getSubDirectories :: FilePath -> ListT IO FilePath
 getSubDirectories path = do
-    dir <- ListT $ getDirectoryContents path
-    lift $ (doesDirectoryExist . (</>) path) dir >>= guard
-    guard . not $ isPrefixOf "." dir
-    return $ path </> dir
+    directory <- ListT $ getDirectoryContents path
+    guard . not $ isPrefixOf "." directory
+    subdir <- lift . doesDirectoryExist $ path </> directory
+    guard subdir
+    return $ path </> directory
 
 main :: IO ()
 main = do
-    path <- fmap (fromMaybe "." . lookup "NOTE_PATH") getEnvironment
-    c <- runListT . getSubDirectories $ path </> "class"
-    a <- runListT . getSubDirectories $ path </> "archive"
+    c <- runListT $ getSubDirectories "classes"
+    a <- runListT $ getSubDirectories "archive"
     doHakyll c a
 
 -- | Where the magic happens
