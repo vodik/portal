@@ -48,10 +48,7 @@ main = do
 doHakyll :: [FilePath] -> [FilePath] -> IO ()
 doHakyll classes archived = hakyllWith hakyllConfig $ do
     -- Images and static files, compress css, process templates
-    [ "favicon.ico" ] --> copy
-    [ "images/**" ]   --> copy
-    [ "static/**" ]   --> copy
-    [ "js/**" ]       --> copy
+    [ "favicon.ico", "images/**", "static/**", "js/**" ] --> copy
     [ "css/*" ]       --> css
     [ "templates/*" ] --> templates
 
