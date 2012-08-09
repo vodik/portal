@@ -1,0 +1,7 @@
+<h1>ARCHIVED!
+
+<div id="info">
+  #{body}
+
+<ul>
+  #{notes}

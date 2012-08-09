@@ -1,0 +1,5 @@
+<div id="info">
+  #{body}
+
+<ul>
+  #{notes}

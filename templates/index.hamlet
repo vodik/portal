@@ -1,16 +1,12 @@
 <div id="notes">
-  <h1>Classes</h1>
-  $classes$
-</div>
+  <h1>Classes
+  #{classes}
 
 <div id="notes">
-  <h1>From yonder</h1>
-  $archived$
-</div>
+  <h1>From yonder
+  #{archived}
 
 <div class="about">
-  <h1>About</h1>
+  <h1>About
   <p>
     Welcome. This is my note management solution.
-  </p>
-</div>

@@ -16,11 +16,13 @@ import System.FilePath
 
 import Text.Pandoc (HTMLMathMethod(..), WriterOptions(..), defaultWriterOptions)
 import Text.Pandoc.Shared (ObfuscationMethod(..))
+import Text.Hamlet (HamletSettings(..), defaultHamletSettings)
+import Text.Hamlet --(HamletSettings(..), defaultHamletSettings)
 import Hakyll
 
 -- | Set up deply command
 --
-hakyllConf = defaultHakyllConfiguration
+hakyllConfig = defaultHakyllConfiguration
     { deployCommand = "rsync --checksum -ave ssh \
                        \_site/* simongmzlj@vodik.local:/srv/http/notes"
     }
@@ -44,7 +46,7 @@ main = do
 -- | Where the magic happens
 --
 doHakyll :: [FilePath] -> [FilePath] -> IO ()
-doHakyll classes archived = hakyllWith hakyllConf $ do
+doHakyll classes archived = hakyllWith hakyllConfig $ do
     -- Images and static files, compress css, process templates
     [ "favicon.ico" ] --> copy
     [ "images/**" ]   --> copy
@@ -57,22 +59,22 @@ doHakyll classes archived = hakyllWith hakyllConf $ do
     match "*/*/notes/*/*" $ do
         route   $ dropPath 1 `composeRoutes` setExtension ".html"
         compile $ notesCompiler
-            >>> applyTemplateCompiler "templates/note.html"
-            >>> applyTemplateCompiler "templates/default.html"
+            >>> applyTemplateCompiler "templates/note.hamlet"
+            >>> applyTemplateCompiler "templates/default.hamlet"
             >>> relativizeUrlsCompiler
 
     -- Generate the actuall class portals
-    forM_ classes  $ makeClassPortal "templates/portal.html"
-    forM_ archived $ makeClassPortal "templates/archive.html"
+    forM_ classes  $ makeClassPortal "templates/portal.hamlet"
+    forM_ archived $ makeClassPortal "templates/archive.hamlet"
 
     -- Build main index
     match  "index.html" $ route idRoute
     create "index.html" $ constA mempty
         >>> arr (setField "title" "Home")
-        >>> setFieldPageList chronological "templates/class.html" "classes"  "classes/*/*"
-        >>> setFieldPageList chronological "templates/class.html" "archived" "archive/*/*"
-        >>> applyTemplateCompiler "templates/index.html"
-        >>> applyTemplateCompiler "templates/default.html"
+        >>> setFieldPageList chronological "templates/class.hamlet" "classes"  "classes/*/*"
+        >>> setFieldPageList chronological "templates/class.hamlet" "archived" "archive/*/*"
+        >>> applyTemplateCompiler "templates/index.hamlet"
+        >>> applyTemplateCompiler "templates/default.hamlet"
         >>> relativizeUrlsCompiler
 
   where
@@ -100,10 +102,10 @@ dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 makeClassPortal template d = match index $ do
     route   $ dropPath 1 `composeRoutes` setExtension ".html"
     compile $ pageCompiler
-        >>> setFieldPageList byPath "templates/noteitem.html" "notes" notes
+        >>> setFieldPageList byPath "templates/noteitem.hamlet" "notes" notes
         >>> arr (changeField "url" dropFileName)
         >>> applyTemplateCompiler template
-        >>> applyTemplateCompiler "templates/default.html"
+        >>> applyTemplateCompiler "templates/default.hamlet"
         >>> relativizeUrlsCompiler
   where
     index = parseGlob $ d </> "index.md"
