@@ -22,20 +22,23 @@ import Hakyll
 
 -- | Set up deply command
 --
+hakyllConfig :: HakyllConfiguration
 hakyllConfig = defaultHakyllConfiguration
     { deployCommand = "rsync --checksum -ave ssh \
-                       \_site/* simongmzlj@vodik.local:/srv/http/notes"
+                      \_site/* simongmzlj@vodik.local:/srv/http/notes"
     }
 
 -- | Get all subdirectories of a directory
 --
 getSubDirectories :: FilePath -> ListT IO FilePath
-getSubDirectories path = do
+getSubDirectories path = exists path >> do
     directory <- ListT $ getDirectoryContents path
     guard . not $ isPrefixOf "." directory
-    subdir <- lift . doesDirectoryExist $ path </> directory
-    guard subdir
-    return $ path </> directory
+
+    let subdir = path </> directory
+    exists subdir >> return subdir
+  where
+    exists = (guard =<<) . lift . doesDirectoryExist
 
 main :: IO ()
 main = do
@@ -78,11 +81,9 @@ doHakyll classes archived = hakyllWith hakyllConfig $ do
         >>> relativizeUrlsCompiler
 
   where
-    -- Useful combinator here
-    xs --> f = mapM_ (`match` f) xs
-
-    copy = route idRoute >> compile copyFileCompiler
-    css  = route idRoute >> compile compressCssCompiler
+    (-->) = match . list
+    copy  = route idRoute >> compile copyFileCompiler
+    css   = route idRoute >> compile compressCssCompiler
     templates = compile templateCompiler
 
 -- | Sort pages chronologically based on their path. This assumes a
@@ -98,7 +99,7 @@ dropPath n = customRoute $ joinPath . drop n . splitPath . toFilePath
 
 -- | Compile a portal page for the class
 --
--- makeClassPortal :: FilePath -> RulesM (Pattern (Page String))
+makeClassPortal :: Identifier Template -> FilePath -> RulesM (Pattern (Page String))
 makeClassPortal template d = match index $ do
     route   $ dropPath 1 `composeRoutes` setExtension ".html"
     compile $ pageCompiler
@@ -114,12 +115,7 @@ makeClassPortal template d = match index $ do
 -- | Override the default compiler because we want to use MathJax
 --
 notesCompiler :: Compiler Resource (Page String)
-notesCompiler = pageCompilerWith defaultHakyllParserState notesWriterOptions
-
--- | WriterOptions with MathJax for math rendering set
---
-notesWriterOptions :: WriterOptions
-notesWriterOptions = defaultWriterOptions
+notesCompiler = pageCompilerWith defaultHakyllParserState defaultWriterOptions
     { writerEmailObfuscation = NoObfuscation
     , writerHTMLMathMethod   = MathJax ""
     }

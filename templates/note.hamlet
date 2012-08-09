@@ -1,8 +1,8 @@
 <h1>#{title}
 <p>
-  y
-  <em>#{author}
-  on
+  By #
+  <em>#{author} #
+  on #
   <strong>#{date}
 
 #{body}
