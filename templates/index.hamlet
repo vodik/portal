@@ -1,12 +1,7 @@
-<div id="notes">
-  <h1>Classes
-  #{classes}
+<nav>
+  <div id="classes" class="set">
+    #{classes}
 
-<div id="notes">
-  <h1>From yonder
-  #{archived}
-
-<div class="about">
-  <h1>About
-  <p>
-    Welcome. This is my note management solution.
+  <div id="archived" class="set">
+    <h1>Archived
+    #{archived}

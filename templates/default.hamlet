@@ -1,19 +1,20 @@
-<!DOCTYLE html>
+!!!
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>Vodik Notes
   <link rel="stylesheet" type="text/css" href="/css/default.css" />
 <body>
-  <header id="banner" class="body">
+  <header>
     <h1>Vodik Notes
-    <nav>
 
-  <section id="main">
-    #{body}
+  #{body}
 
   <footer>
-    &copy; 2011 #
-    <a href="http://google.com/">Simon Gomizelj #
-    Powered by #
+    &copy; 2011-2012 #
+    <a href="http://google.com/">Simon Gomizelj
+    \. Site proudly generated using #
     <a href="http://jaspervdj.be/hakyll/">Hakyll
+    \.
+
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">

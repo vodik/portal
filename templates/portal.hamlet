@@ -1,5 +1,6 @@
-<div id="info">
-  #{body}
+<section>
+  <div id="info">
+    #{body}
 
-<ul>
-  #{notes}
+  <ul>
+    #{notes}

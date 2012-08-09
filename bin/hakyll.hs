@@ -70,14 +70,15 @@ doHakyll classes archived = hakyllWith hakyllConfig $ do
         >>> arr (setField "title" "Home")
         >>> setFieldPageList chronological "templates/class.hamlet" "classes"  "classes/*/*"
         >>> setFieldPageList chronological "templates/class.hamlet" "archived" "archive/*/*"
-        >>> applyTemplateCompiler "templates/index.hamlet"
+        >>> applyTemplateCompiler "templates/classes.hamlet"
         >>> applyTemplateCompiler "templates/default.hamlet"
         >>> relativizeUrlsCompiler
 
   where
-    (-->) = match . list
-    copy  = route idRoute >> compile copyFileCompiler
-    css   = route idRoute >> compile compressCssCompiler
+    xs --> f = mapM_ (`match` f) xs
+
+    copy = route idRoute >> compile copyFileCompiler
+    css  = route idRoute >> compile compressCssCompiler
     templates = compile templateCompiler
 
 -- | Sort pages chronologically based on their path. This assumes a

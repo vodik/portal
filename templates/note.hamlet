@@ -1,10 +1,9 @@
-<h1>#{title}
-<p>
-  By #
-  <em>#{author} #
-  on #
-  <strong>#{date}
+<section>
+  <h1>#{title}
+  <p>
+    By #
+    <em>#{author}
+    \ on #
+    <strong>#{date}
 
-#{body}
-
-<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  #{body}

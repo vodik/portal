@@ -1,7 +1,8 @@
-<h1>ARCHIVED!
+<section>
+  <h1>ARCHIVED!
 
-<div id="info">
-  #{body}
+  <div id="info">
+    #{body}
 
-<ul>
-  #{notes}
+  <ul>
+    #{notes}
