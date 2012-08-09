@@ -7,18 +7,15 @@ import Prelude hiding (id)
 import Control.Arrow
 import Control.Category (id)
 import Control.Monad
-import Control.Monad.List
+import Control.Monad.List (ListT(..), runListT, lift)
 import Data.List (isPrefixOf, sortBy)
-import Data.Monoid
+import Data.Monoid (mempty)
 import Data.Ord (comparing)
+import Hakyll
 import System.Directory (doesDirectoryExist, getDirectoryContents)
 import System.FilePath
-
 import Text.Pandoc (HTMLMathMethod(..), WriterOptions(..), defaultWriterOptions)
 import Text.Pandoc.Shared (ObfuscationMethod(..))
-import Text.Hamlet (HamletSettings(..), defaultHamletSettings)
-import Text.Hamlet --(HamletSettings(..), defaultHamletSettings)
-import Hakyll
 
 -- | Set up deply command
 --
